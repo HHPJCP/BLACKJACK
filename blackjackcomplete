@@ -1,0 +1,211 @@
+# Online Python - IDE, Editor, Compiler, Interpreter
+### version full complete black jack with 21 2-card BJack win, and corrected not ask more card is already 21, and 
+#### wrong print out corrected without erronously showing dealer busted and you win but dealer score <22
+
+## Complete Black Jack program with Display of player and Dealer cards (include hidden) at each hand
+## Include counting # hands played,won & lost, and report at end # hands played, # hands won by player and dealer.
+# Include Checking invalid entry other than 'y or 'n' when ask if want to play BJ game again at the end
+
+
+import random
+
+# Function to BUILD specific type of card deck (content of cards definition)
+def build_adeck():
+#   suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+    ranks = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King']
+    deck = [{'rank': rank} for rank in ranks]
+    random.shuffle(deck)
+    return deck
+
+# Function get_player_score(hand) to Get Player (or dealer) total score value of a hand
+# It also determine if Ace can be used best by couting it as a 1 or 11 
+# It returns the value of the total score (of player or dealer) to caller of the function
+def get_player_score(hand):
+    value = 0
+    num_aces = 0
+    for card in hand:
+        if card['rank'] in ['Jack', 'Queen', 'King']:
+            value += 10
+        elif card['rank'] == 'Ace':
+            num_aces += 1
+            value += 11
+        else:
+            value += int(card['rank'])
+    while value > 21 and num_aces:
+        value -= 10
+        num_aces -= 1
+    return value
+
+# Function dispay_hand(hand) to show/print the cards in a (hand of player or dealer)
+def display_hand(hand):
+    for card in hand:
+        print(f"{card['rank']}")
+
+# Function to determine if the player's two card hand had WON BlackJack(21 points)
+def is_blackjack(hand):
+    return len(hand) == 2 and get_player_score(hand) == 21
+
+# Main BlackJack Game Program Function
+def main_blackjack():
+    deck = build_adeck()
+    player_hand = [deck.pop(), deck.pop()]
+    dealer_hand = [deck.pop(), deck.pop()]
+
+    player_value = get_player_score(player_hand)
+    print("Your hand of two cards has a total value of ", player_value)
+    display_hand(player_hand)   # Show (print) player's hand of cards
+
+    print ("Dealer's hand:")
+#    print("\nDealer's hand:")  ## when \n is used, it will skip a blank line then print
+    print(f"{dealer_hand[0]['rank']} ")
+#    print(f"{dealer_hand[0]['rank']} of {dealer_hand[0]['suit']}")
+    print("Dealer Hidden card")
+
+    if is_blackjack(player_hand):
+#       print("Your hand of two cards has a total value of 21.") ##TotalValue ALREADY PRINTED before check for BJ
+        print("\nYOU WIN 🎉\n")
+        print("YOU WIN ! You have Blackjack!")
+        pwc=1   ## 1 indicates player won, and pass/return pwc to function caller increment of playerwin_count by 1
+        dwc=0   ## 0 indicates dealer lost, and pass/return dwc to function caller to increase dealerwin_count by 0)
+        return (pwc, dwc)   ### Exit Main(pwc, dwc) and pass pwc, dwc to function caller.
+
+    while get_player_score(player_hand) < 21:    
+        
+        action = input("would you like to take another card? (y/n) ").lower()
+        if action == 'y':
+            player_hand.append(deck.pop())
+            print ("Your hand:")
+#            print("\nYour hand:")   ## \n is for print after skipping a blank line
+            display_hand(player_hand)
+#           player_value = calculate_hand_value(player_hand)
+
+            player_value = get_player_score(player_hand)
+            if player_value <22:
+                print("Your hand now has a total value of:", player_value)
+            
+        elif action == 'n':
+            print ("Your have stopped taking cards. Your hand value is ", player_value)
+            break
+        else:
+            print("Invalid input. Please enter 'y' to HIT to get another card  or 'n' to STAND.")
+            
+    if player_value > 21:
+#        display_hand(player_hand)
+        print("You BUSTED with a total value of ", player_value)
+        print("\nYOU LOSE 😭\n")
+        pwc=0
+        dwc=1
+#        print("YOU LOSE !!")
+        return (pwc, dwc)   ### Exit Main(pwc, dwc) and pass pwc, dwc to function caller.
+#   print("\nDealer's hand:")
+#   display_hand(dealer_hand)
+#   while calculate_hand_value(dealer_hand) < 17:
+
+####  Casino playing dealer has to HIT (get a card) IF CARD TOTAL is <=16 (i.e.  <17)
+    while get_player_score(dealer_hand) < 17:   
+        dealer_hand.append(deck.pop())
+#        print("Dealer's hand:")
+#       display_hand(dealer_hand)
+#   dealer_value = calculate_hand_value(dealer_hand)
+    
+    dealer_value = get_player_score(dealer_hand)
+    print("Dealer's hand:")
+    display_hand(dealer_hand)
+#    print("\nYour hand value:", player_value)
+#    print("The Dealer was dealt a hand with a value of ", dealer_value)
+
+###########
+# #  "if player_score>dealer_score or dealer_score> 21":  (THE "or" HERE DOES NOT QUITE WORK TOTALLY)
+# CHANGED BELOW (NOTE this version pgm use value - player_value dealer_value instead of score as variable)
+# # instruction player_score is not busted (<=21)  and dealer score busted(>21) - 
+    if  dealer_value > 21:
+        print(f"The dealer BUSTED with a total value of {dealer_value}!")
+        print("\nYOU WIN 🎉\n")
+        pwc=1
+        dwc=0
+        return (pwc, dwc)  ### Exit Main(pwc, dwc) and pass pwc, dwc to function caller.
+    else:
+# ADDED this is when dealer and player NOT busted and player_score > dealer score
+        if  player_value > dealer_value and player_value <=21:
+            print(f"The dealer was dealt a hand with a value of {dealer_value}.")
+            print("\nYOU WIN 🎉\n")
+            pwc=1
+            dwc=0
+            return (pwc, dwc)  ### Exit Main(pwc,dwc) and pass pwc, dwc to function caller.
+        else:
+# ADDED this- is when dealer and player not busted but have same score.
+            print(f"The dealer was dealt a hand with a value of {dealer_value}.")
+            print("\nYOU LOSE 😭\n")
+            pwc=0
+            dwc=1
+            if player_value == dealer_value:
+                print ("You and dealer have same value - CASINO rule - YOU LOSE 😭 ")
+                return (pwc, dwc)   ### Exit Main(pwc,dwc) and pass pwc, dwc to function caller.
+            else:
+                 return (pwc, dwc)  ### Exit Main(pwc,dwc) and pass pwc, dwc to function caller.
+##########
+# #  "if player_score>dealer_score or dealer_score> 21":  (THE "or" HERE DOES NOT QUITE WORK TOTALLY)
+### See Changes above
+### below are old code w wrong output show dealer busted with score<22 and you win 
+##############
+#    if dealer_value > 21 or player_value > dealer_value:
+#        print("The dealer BUSTED with a total value of ", dealer_value)
+#        print("YOU WIN !")
+#    elif dealer_value > player_value:
+#        print("The dealer was dealted with a hand with a value of ", dealer_value)
+#        print("YOU LOSE !")
+#    else:
+#        print ("The dealer was dealt a hand with a value of ", dealer_value)
+#        print("You LOSE!") 
+#        print("Sorry, You still LOSE in my casino when you have tied scores with the Dealer")
+#####################
+
+def restart_program():
+#########################
+### Initialize parameters to keep count of hands played, won, and lost by player and dealer.
+    hand_count=0
+    playerwin_count=0
+    dealerwin_count=0
+    pwc=0
+    dwc=0
+#    restart == "y"
+##################
+    while True:
+    ## calling main_blackjack(pwc,dwc) - It does all the cards dealing, checking, scoring & counting for each hand, 
+    ##  pwc, dwc = main_blackjack() #pass pwc & dwc (1 indicate won, 0 lost) (player-pwc or dealer-dwc) for the hand
+        pwc, dwc = main_blackjack()  #  main_blackjack(pwc, dwc) - does all the dealing and counting for each hand
+        playerwin_count = playerwin_count + pwc
+        dealerwin_count = dealerwin_count + dwc
+        hand_count += 1   ## keep count of # of hands played
+        restart = input("Do you want to play my Back Jack game again?(y/n): ").lower()
+        print ("  ")
+#############################
+## codes enclosed below between ###  works but without checking/correct for wrong input (not y or n)
+#############################
+#        if restart != "y":
+#            print ("Your Betting Statistics are - ")
+#            print ("Total # Hands Played:", hand_count)
+#            print ("# Hands Player Won", playerwin_count)
+#            print ("# Hands Dealer Won", dealerwin_count)
+#            print("Goodbye!")
+#            break
+####################################  
+### code below allows y, n and check for wrong invalid input (not y and not n) to re enter again
+        if restart == "n":
+            print ("Your Betting Statistics are - ")
+            print ("Total # Hands Played:", hand_count)
+            print ("# Hands Player Won", playerwin_count)
+            print ("# Hands Dealer Won", dealerwin_count)
+            print("Goodbye!")
+            break
+        elif restart == "y":
+            pass
+        elif restart !="y" and restart != "n":
+            print ("Invalid Entry, Only 'y' or 'n' for play BJ game again!")
+            restart = input("Do you want to play my Back Jack game again?(y/n): ").lower()
+            if restart == "y":
+                pass
+            else:
+                break
+###############################  
+restart_program()    
